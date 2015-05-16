@@ -1,0 +1,40 @@
+{
+  "name": "requirejs-dir",
+  "version": "1.0.0",
+  "description": "A node module to recursively require files from a directory with RequireJS",
+  "keywords": ["node", "requirejs", "directory", "recursive", "require"],
+  "homepage": "https://github.com/dbartholomae/node-dir-require",
+  "bugs": "https://github.com/dbartholomae/node-dir-require/issues",
+  "license": "MIT",
+  "author": "Daniel Bartholomae <daniel@bartholomae.name>",
+  "main": "lib/DirRequirer.js",
+  "man": "./doc/index.html",
+  "dependencies": {
+    "when": "3.7.3",
+    "requirejs": "2.1.17",
+    "fs-readdir-recursive": "0.1.1"
+  },
+  "devDependencies": {
+    "mocha": "2.2.4",
+    "chai": "2.3.0",
+    "chai-as-promised": "5.0.0",
+    "sinon-chai": "2.7.0",
+    "sinon": "1.14.1",
+    "coffee-script": "1.7.1"
+  },
+  "directories": {
+    "lib": "./lib",
+    "man": "./doc",
+    "example": "./example"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dbartholomae/node-dir-require.git"
+  },
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "coffee -c -o ./lib ./src",
+    "doc": "codo ./lib",
+    "test": "mocha --compilers coffee:coffee-script/register"
+  }
+}

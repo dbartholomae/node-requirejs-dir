@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <meta charset='UTF-8'>
+  <title>CoffeeScript API Documentation</title>
+  <script src='../javascript/application.js'></script>
+  <script src='../javascript/search.js'></script>
+  <link rel='stylesheet' href='../stylesheets/application.css' type='text/css'>
+</head>
+  <body>
+    <div id='base' data-path='../'></div>
+<div id='header'>
+  <div id='menu'>
+    <a href='../extra/README.md.html' title='Dir-requirer'>
+      Dir-requirer
+    </a>
+    &raquo;
+    <a href='../alphabetical_index.html' title='Index'>
+      Index
+    </a>
+    &raquo;
+    <span class='title'>README.md</span>
+  </div>
+</div>
+    <div id='content'>
+      <nav class='toc'>
+        <p class='title'>
+          <a class='hide_toc' href='#'>
+            <strong>Table of Contents</strong>
+          </a>
+          <small>
+            (<a class='float_toc' href='#'>left</a>)
+          </small>
+        </p>
+      </nav>
+      <div id='filecontents'>
+        <h1 id="node-dir-requirer">node-dir-requirer</h1><p>The <strong>node-dir-requirer</strong> is a Node module to recursively require files from a directory with RequireJS.</p><pre><code class="lang-coffeescript">new DirRequirer(&quot;server/lib/routes&quot;).requireAll (route) -&gt;
+  router.use route
+</code></pre>
+<h2 id="api">API</h2><p>The module can be required via node&#39;s require, or as an AMD module via requirejs.
+You can either set the path at construction via <code>new DirRequirer(path)</code> or when reading the file
+via <code>new DirRequirer().requireAll(path)</code>. You can either wait for a callback as in the example above
+or receive a promise (powered by <a href="https://github.com/cujojs/when">when</a>):</p><pre><code class="lang-coffeescript">promises = new DirRequirer().requireAll &quot;server/lib/routes&quot;
+promises.forEach (promise) -&gt;
+  promise.done ({filename, content}) -&gt;
+    console.log &quot;Using route &quot; + filename
+    router.use content
+</code></pre><p>Furthermore the constructor takes a function as second parameter that is called with useful debug information:</p><pre><code class="lang-coffeescript">new DirRequirer(&quot;server/lib/routes&quot;, debug).requireAll (route, filename) -&gt;
+  debug &quot;Successfully required file &quot; + filename
+  router.use route
+</code></pre><p>There is a <a href="https://github.com/coffeedoc/codo">codo</a> created documentation in the doc folder with more details.</p>
+      </div>
+    </div>
+    <div id='footer'>
+  May 16, 15 02:15:32 by
+  <a href='https://github.com/coffeedoc/codo' title='CoffeeScript API documentation generator'>
+    Codo
+  </a>
+  2.0.9
+  &#10034;
+  Press H to see the keyboard shortcuts
+  &#10034;
+  <a href='http://twitter.com/netzpirat' target='_parent'>@netzpirat</a>
+  &#10034;
+  <a href='http://twitter.com/_inossidabile' target='_parent'>@_inossidabile</a>
+</div>
+<iframe id='search_frame'></iframe>
+<div id='fuzzySearch'>
+  <input type='text'>
+  <ol></ol>
+</div>
+<div id='help'>
+  <p>
+    Quickly fuzzy find classes, mixins, methods, file:
+  </p>
+  <ul>
+    <li>
+      <span>T</span>
+      Open fuzzy finder dialog
+    </li>
+  </ul>
+  <p>
+    Control the navigation frame:
+  </p>
+  <ul>
+    <li>
+      <span>L</span>
+      Toggle list view
+    </li>
+    <li>
+      <span>C</span>
+      Show class list
+    </li>
+    <li>
+      <span>I</span>
+      Show mixin list
+    </li>
+    <li>
+      <span>F</span>
+      Show file list
+    </li>
+    <li>
+      <span>M</span>
+      Show method list
+    </li>
+    <li>
+      <span>E</span>
+      Show extras list
+    </li>
+  </ul>
+  <p>
+    You can focus and blur the search input:
+  </p>
+  <ul>
+    <li>
+      <span>S</span>
+      Focus search input
+    </li>
+    <li>
+      <span>Esc</span>
+      Blur search input
+    </li>
+  </ul>
+</div>
+  </body>
+</html>
