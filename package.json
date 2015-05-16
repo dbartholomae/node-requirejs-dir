@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "A node module to recursively require files from a directory with RequireJS",
   "keywords": ["node", "requirejs", "directory", "recursive", "require"],
-  "homepage": "https://github.com/dbartholomae/node-dir-require",
-  "bugs": "https://github.com/dbartholomae/node-dir-require/issues",
+  "homepage": "https://github.com/dbartholomae/node-requirejs-dir",
+  "bugs": "https://github.com/dbartholomae/node-requirejs-dir/issues",
   "license": "MIT",
   "author": "Daniel Bartholomae <daniel@bartholomae.name>",
   "main": "lib/DirRequirer.js",
@@ -29,7 +29,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/dbartholomae/node-dir-require.git"
+    "url": "https://github.com/dbartholomae/node-requirejs-dir.git"
   },
   "scripts": {
     "prepublish": "npm run build",
