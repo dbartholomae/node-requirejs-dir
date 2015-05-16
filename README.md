@@ -1,5 +1,5 @@
-# node-dir-requirer
-The **node-dir-requirer** is a Node module to recursively require files from a directory with RequireJS.
+# node-requirejs-dir
+The **node-requirejs-dir** is a Node module to recursively require files from a directory with RequireJS.
 
 ```coffeescript
 new DirRequirer("server/lib/routes").requireAll (route) ->
