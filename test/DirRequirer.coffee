@@ -5,86 +5,121 @@ chai.use(require 'sinon-chai')
 expect = chai.expect
 
 When = require 'when'
+requirejs = require('requirejs')
 
-pathLib = require 'path'
+requirejs.config
+  baseUrl: __dirname
+  nodeRequire: require
 
-path = "test/files/"
-emptyPath = "test/emptyDir/"
+path = require 'path'
+
+filesPath = "files/"
+emptyDirPath = "emptyDir/"
+defineAllPath = "defineAll/"
 
 DirRequirer = require '../lib/DirRequirer'
 
-fileTests =
-  'function.js': (content) -> expect(content).to.deep.equal "This is a String"
-  'json.js': (content) -> expect(content).to.deep.equal {"key": "value"}
+expectedResults = {}
+expectedResults['files' + path.sep + 'function'] = "This is a String"
+expectedResults['files' + path.sep + 'json'] = {"key": "value"}
 
 describe "A DirRequirer", ->
 
   it "can be required via requirejs", (done) ->
     expect(
-            require('requirejs') [pathLib.join(__dirname, '..', 'lib/DirRequirer.js')], (loaded) ->
-              expect(loaded).to.exist
-              done()
+      requirejs [path.join(__dirname, '..', 'lib/DirRequirer.js')], (loaded) ->
+        expect(loaded).to.exist
+        done()
     ).to.not.throw
 
   it "throws when no path is set", ->
     dirRequirer = new DirRequirer()
     expect(-> dirRequirer.requireAll()).to.throw "pathname should be a string, was undefined"
+    expect(-> dirRequirer.defineAll(->)).to.throw "pathname should be a string, was undefined"
 
-  it "throws when no files match and a callback is set", ->
-    dirRequirer = new DirRequirer(emptyPath)
-    expect(-> dirRequirer.requireAll(->)).to.throw "No file found to read"
+  describe "that is used to require modules", ->
+    it "throws when no files match and a callback is set", ->
+      dirRequirer = new DirRequirer emptyDirPath
+      expect(-> dirRequirer.requireAll(->)).to.throw "No file found to read"
 
-  it "fails when no files match and no callback is set", ->
-    dirRequirer = new DirRequirer(emptyPath)
-    expect(dirRequirer.requireAll()).to.be.rejectedWith "No file found to read"
+    it "fails when no files match and no callback is set", ->
+      dirRequirer = new DirRequirer emptyDirPath
+      expect(dirRequirer.requireAll()).to.be.rejectedWith "No file found to read"
 
-  describe "with a path set at construction", ->
-    dirRequirer = null
+    describe "with a path set at construction", ->
+      dirRequirer = null
 
-    beforeEach ->
-      dirRequirer = new DirRequirer path
+      beforeEach ->
+        dirRequirer = new DirRequirer filesPath
 
-    it "accepts and uses a debug function", ->
-      debug = sinon.stub()
-      new DirRequirer(path, {debug: debug}).requireAll ->
-      expect(debug).to.have.been.called
+      it "accepts and uses a debug function", ->
+        debug = sinon.stub()
+        new DirRequirer(filesPath, {debug: debug}).requireAll ->
+        expect(debug).to.have.been.called
 
-    it "requires a directory via callback", (done) ->
-      files = {}
-      dirRequirer.requireAll (content, filename) ->
-        files[filename] = true
-        console.log filename
-        fileTests[filename](content)
-        if Object.keys(files).length == 2
+      it "requires a directory via callback", (done) ->
+        files = {}
+        dirRequirer.requireAll (content, filename) ->
+          files[filename] = true
+          expect(content).to.deep.equal expectedResults[filename]
+          if Object.keys(files).length == 2
+            done()
+
+      it "requires a directory via Promise", (done) ->
+        When.all(dirRequirer.requireAll()).done (arr) ->
+          for {content, filename} in arr
+            expect(content).to.deep.equal expectedResults[filename]
           done()
 
-    it "requires a directory via Promise", (done) ->
-      When.all(dirRequirer.requireAll()).done (arr) ->
-        for {content, filename} in arr
-          fileTests[filename](content)
-        done()
+    describe "with a path given in the requireAll call", ->
+      dirRequirer = null
+      beforeEach ->
+        dirRequirer = new DirRequirer()
 
-  describe "with a path given in the requireAll call", ->
-    dirRequirer = null
-    beforeEach ->
-      dirRequirer = new DirRequirer()
+      it "accepts and uses a debug function", ->
+        debug = sinon.stub()
+        new DirRequirer({debug: debug}).requireAll filesPath, ->
+        expect(debug).to.have.been.called
 
-    it "accepts and uses a debug function", ->
-      debug = sinon.stub()
-      new DirRequirer({debug: debug}).requireAll path, ->
-      expect(debug).to.have.been.called
+      it "requires a directory via callback", (done) ->
+        files = {}
+        dirRequirer.requireAll filesPath,  (content, filename) ->
+          files[filename] = true
+          expect(content).to.deep.equal expectedResults[filename]
+          if Object.keys(files).length == 2
+            done()
 
-    it "requires a directory via callback", (done) ->
-      files = {}
-      dirRequirer.requireAll path,  (content, filename) ->
-        files[filename] = true
-        fileTests[filename](content)
-        if Object.keys(files).length == 2
+      it "requires a directory via Promise", (done) ->
+        When.all(dirRequirer.requireAll(filesPath)).done (arr) ->
+          for {content, filename} in arr
+            expect(content).to.deep.equal expectedResults[filename]
           done()
 
-    it "requires a directory via Promise", (done) ->
-      When.all(dirRequirer.requireAll(path)).done (arr) ->
-        for {content, filename} in arr
-          fileTests[filename](content)
-        done()
+  describe "that is used to define a module", ->
+    describe "with a path set at construction", ->
+      it "requires a directory", (done) ->
+        requirejs [defineAllPath + 'fn'], (modules) ->
+          for filename, content of modules[0]
+            expect(content).to.deep.equal expectedResults[filename]
+          done()
 
+      it "requires a directory with an additional dependency", (done) ->
+        requirejs [defineAllPath + 'fnDeps'], (modules) ->
+          for filename, content of modules[0]
+            expect(content).to.deep.equal expectedResults[filename]
+          expect(modules[1]).to.equal "Data"
+          done()
+
+    describe "with a path given in the defineAll call", ->
+      it "requires a directory", (done) ->
+        requirejs [defineAllPath + 'fnPath'], (modules) ->
+          for filename, content of modules[0]
+            expect(content).to.deep.equal expectedResults[filename]
+          done()
+
+      it "requires a directory with an additional dependency", (done) ->
+        requirejs [defineAllPath + 'fnPathDeps'], (modules) ->
+          for filename, content of modules[0]
+            expect(content).to.deep.equal expectedResults[filename]
+          expect(modules[1]).to.equal "Data"
+          done()

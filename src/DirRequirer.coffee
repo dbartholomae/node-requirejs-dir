@@ -1,8 +1,8 @@
 ((modules, factory) ->
-# Use define if amd compatible define function is defined
+  # Use define if amd compatible define function is defined
   if typeof define is 'function' && define.amd
     define modules, factory
-# Use node require if not
+  # Use node require if not
   else
     module.exports = factory (require m for m in modules)...
 )( ['requirejs', 'fs-readdir-recursive', 'path', 'when'], (requirejs, readDir, path, When) ->
@@ -27,9 +27,10 @@
         @options = @pathname
       @options ?= {}
       @options.debug ?= ->
-      @options.extensions = ['js']
+      @options.extension = '.js'
 
       @debug = @options.debug
+
     # Require all files from the set directory and call the callback for each of them.
     # The callback is called as callback(module, filename) with module being the result from
     # requirejs and filename being the filename.
@@ -54,26 +55,29 @@
 
       throw new TypeError "pathname should be a string, was " + pathname unless typeof pathname is 'string'
 
-      dir = path.join path.resolve path.dirname(), pathname
+      dir = requirejs.toUrl pathname
       @debug "Reading routes from " + dir
       promises = []
+      files = readDir dir
       anyFileRead = false
-      for filename in readDir dir
-        @debug "Assessing file " + filename + " with extname " + path.extname(filename)[1..] +
-                        " and basename " + path.basename(filename)
-        if path.extname(filename)[1..] in @options.extensions
-          do (filename) =>
-            @debug "Trying to load file " + filename
-            anyFileRead = true
-            if callback?
-              requirejs [path.join dir, filename], (content) ->
-                callback content, filename
-            else
-              promises.push When.promise (resolve) ->
-                requirejs [path.join dir, filename], (content) ->
-                  resolve
-                    filename: filename
-                    content: content
+      if files?
+        for filename in files
+          @debug "Assessing file " + filename + " with extname " + path.extname(filename)[1..] +
+                          " and basename " + path.basename(filename)
+          if path.extname(filename) is @options.extension
+            dependency = path.join(dir, filename)
+            do (dependency) =>
+              @debug "Trying to load file " + filename
+              anyFileRead = true
+              if callback?
+                requirejs [dependency], (content) ->
+                  callback content, path.relative requirejs.toUrl(''), dependency[..-4]
+              else
+                promises.push When.promise (resolve) ->
+                  requirejs [dependency], (content) ->
+                    resolve
+                      filename: path.relative requirejs.toUrl(''), dependency[..-4]
+                      content: content
 
       unless anyFileRead
         if callback
@@ -82,4 +86,44 @@
           return When.reject new Error "No file found to read"
 
       return promises unless callback
+
+    # Define an anonymous module requiring all files from the set directory additionally to
+    # the modules given to this function.
+    # If there is no file in the directory that matches the extensions set in the constructor,
+    # requirejs.define is called with the parameters given to this function
+    #
+    # @param [String] (pathname)
+    # @param [Array <String>] (additionalDeps) Names of additional modules to require
+    # @param [Function] callback The callback to be called
+    # @throw {TypeError} pathname should be a string, was {pathname}
+    defineAll: (pathname, additionalDeps, callback) ->
+      if typeof additionalDeps is 'function'
+        callback = additionalDeps
+        additionalDeps= undefined
+      if Array.isArray pathname
+        additionalDeps = pathname
+        pathname = undefined
+      if typeof pathname is 'function'
+        callback = pathname
+        pathname = undefined
+        additionalDeps = undefined
+      pathname ?= @pathname
+      additionalDeps ?= []
+
+      throw new TypeError "pathname should be a string, was " + pathname unless typeof pathname is 'string'
+
+      dir = requirejs.toUrl pathname
+      @debug "Reading routes from " + dir
+      files = readDir dir
+      dirDeps = []
+      if files?
+        dirDeps = for filename in files when path.extname(filename) is @options.extension
+          path.join pathname, path.basename filename, @options.extension
+      deps = dirDeps.concat additionalDeps
+      @debug "Loading dependencies " + deps
+      requirejs.define deps, (modules...) ->
+        dirModules = {}
+        for i in [0..dirDeps.length-1]
+          dirModules[dirDeps[i]] = modules[i]
+        callback ([dirModules].concat modules[dirDeps.length..])...
 )
