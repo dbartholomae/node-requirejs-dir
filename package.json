@@ -32,7 +32,7 @@
     "url": "https://github.com/dbartholomae/node-requirejs-dir.git"
   },
   "scripts": {
-    "prepublish": "npm run build",
+    "pretest": "npm run build",
     "build": "coffee -c -o ./lib ./src",
     "doc": "codo ./lib",
     "test": "mocha --compilers coffee:coffee-script/register"
