@@ -55,7 +55,7 @@
 
       throw new TypeError "pathname should be a string, was " + pathname unless typeof pathname is 'string'
 
-      dir = requirejs.toUrl pathname
+      dir =   requirejs.toUrl pathname
       @debug "Reading routes from " + dir
       promises = []
       files = readDir dir
@@ -65,18 +65,18 @@
           @debug "Assessing file " + filename + " with extname " + path.extname(filename)[1..] +
                           " and basename " + path.basename(filename)
           if path.extname(filename) is @options.extension
-            dependency = path.join(dir, filename)
+            dependency = path.join(pathname, filename)
             do (dependency) =>
-              @debug "Trying to load file " + filename
+              @debug "Trying to load file " + dependency
               anyFileRead = true
               if callback?
-                requirejs [dependency], (content) ->
-                  callback content, path.relative requirejs.toUrl(''), dependency[..-4]
+                requirejs [dependency], (content) =>
+                  callback content, path.relative requirejs.toUrl(''), dependency[..-(@options.extension+1)]
               else
-                promises.push When.promise (resolve) ->
-                  requirejs [dependency], (content) ->
+                promises.push When.promise (resolve) =>
+                  requirejs [dependency], (content) =>
                     resolve
-                      filename: path.relative requirejs.toUrl(''), dependency[..-4]
+                      filename: path.relative requirejs.toUrl(''), dependency[..-(@options.extension+1)]
                       content: content
 
       unless anyFileRead
@@ -118,12 +118,12 @@
       dirDeps = []
       if files?
         dirDeps = for filename in files when path.extname(filename) is @options.extension
-          path.join pathname, path.basename filename, @options.extension
+          (path.join pathname, filename)
       deps = dirDeps.concat additionalDeps
       @debug "Loading dependencies " + deps
-      requirejs.define deps, (modules...) ->
+      requirejs.define deps, (modules...) =>
         dirModules = {}
         for i in [0..dirDeps.length-1]
-          dirModules[dirDeps[i]] = modules[i]
+          dirModules[dirDeps[i][..-(@options.extension+1)]] = modules[i]
         callback ([dirModules].concat modules[dirDeps.length..])...
 )

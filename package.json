@@ -1,6 +1,6 @@
 {
   "name": "requirejs-dir",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A node module to recursively require files from a directory with RequireJS",
   "keywords": ["node", "requirejs", "directory", "recursive", "require"],
   "homepage": "https://github.com/dbartholomae/node-requirejs-dir",
@@ -32,7 +32,7 @@
     "url": "https://github.com/dbartholomae/node-requirejs-dir.git"
   },
   "scripts": {
-    "prepublish": "npm run build",
+    "pretest": "npm run build",
     "build": "coffee -c -o ./lib ./src",
     "doc": "codo ./lib",
     "test": "mocha --compilers coffee:coffee-script/register"

@@ -1,3 +1,7 @@
+## 1.1.1
+
+No code changes. Depreciated the module. For details see README.md. 
+
 ## 1.1.0
 
 Changes:
