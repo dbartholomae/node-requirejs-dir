@@ -10,17 +10,17 @@
   "main": "lib/DirRequirer.js",
   "man": "./doc/index.html",
   "dependencies": {
-    "when": "3.7.3",
-    "requirejs": "2.1.17",
-    "fs-readdir-recursive": "0.1.1"
+    "when": "3.7.8",
+    "requirejs": "2.3.6",
+    "fs-readdir-recursive": "1.1.0"
   },
   "devDependencies": {
-    "mocha": "2.2.4",
-    "chai": "2.3.0",
-    "chai-as-promised": "5.0.0",
-    "sinon-chai": "2.7.0",
-    "sinon": "1.14.1",
-    "coffee-script": "1.7.1"
+    "mocha": "5.2.0",
+    "chai": "4.2.0",
+    "chai-as-promised": "7.1.1",
+    "sinon-chai": "3.2.0",
+    "sinon": "7.0.0",
+    "coffee-script": "1.12.7"
   },
   "directories": {
     "lib": "./lib",
